@@ -47,6 +47,7 @@ import {
   SettingsList,
   Spacer,
   Text,
+  truncateToWidth,
   type SettingItem,
   type TUI,
 } from "@earendil-works/pi-tui";
@@ -858,12 +859,21 @@ export default function zenMode(pi: ExtensionAPI) {
       const container = new Container();
       container.addChild(
         new (class {
-          render(_width: number) {
+          render(width: number) {
             const mark = theme.fg("accent", frames[frame]);
             return [
-              `${mark}  ${theme.fg("accent", theme.bold("zen · Focus Mode"))}`,
-              theme.fg("muted", "两个开关控制运行时藏思考 / 工具;文字始终走原生 UI。结束后隐藏项收成占位。"),
-              theme.fg("muted", "Two switches hide thinking / tools at runtime; text always streams. Hidden items become placeholders when the run ends."),
+              truncateToWidth(
+                `${mark}  ${theme.fg("accent", theme.bold("zen · Focus Mode"))}`,
+                width,
+              ),
+              truncateToWidth(
+                theme.fg("muted", "两个开关控制运行时藏思考 / 工具;文字始终走原生 UI。结束后隐藏项收成占位。"),
+                width,
+              ),
+              truncateToWidth(
+                theme.fg("muted", "Two switches hide thinking / tools at runtime; text always streams. Hidden items become placeholders when the run ends."),
+                width,
+              ),
               "",
             ];
           }
@@ -932,10 +942,10 @@ export default function zenMode(pi: ExtensionAPI) {
       const container = new Container();
       container.addChild(
         new (class {
-          render(_width: number) {
+          render(width: number) {
             return [
-              theme.fg("accent", theme.bold(c.pickerTitle)),
-              theme.fg("muted", c.pickerHint(total)),
+              truncateToWidth(theme.fg("accent", theme.bold(c.pickerTitle)), width),
+              truncateToWidth(theme.fg("muted", c.pickerHint(total)), width),
               "",
             ];
           }
