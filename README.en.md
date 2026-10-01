@@ -21,8 +21,8 @@ Every turn in Pi floods the chat with reasoning and tool calls. **Zen-mode** hid
 
 ## Features
 
-- **Hide per switch** — thinking / tools each choose live vs hidden; text always streams
-- **Native UI for what's visible** — unhidden thinking keeps compact-thinking / built-in styling
+- **Hide per switch** — thinking / tools each choose live vs hidden; optional live process streams both, then still collapses them when the turn ends
+- **Native UI for what's visible** — unhidden thinking and live process keep compact-thinking / built-in styling
 - **Answer-first when done** — full final answer, one-line placeholders for what was hidden
 - **Reveal on demand** — `ctrl+alt+r` / `ctrl+alt+s` restore the latest run or pick an earlier one through the original renderer
 - **Non-invasive** — coexists with renderer extensions like [pi-compact-thinking](https://github.com/nostalfinals/pi-compact-thinking); when zen is off it never touches their rendering
@@ -47,10 +47,11 @@ Update with `pi update --extensions`.
   <img src="img/PixPin_2026-09-04_16-56-48.png" alt="zen settings panel" width="660" />
 </p>
 
-Besides the **focus mode** switch, there are two more:
+Besides the **focus mode** switch, there are three process-display switches:
 
 * **thinking** — whether thinking blocks are hidden for every turn while focus mode is on
 * **tools** — whether tool rows are hidden for every turn while focus mode is on
+* **live process** — stream native thinking and tools while a turn runs; still collapse both when that turn settles
 
 ## Shortcuts
 
@@ -75,6 +76,7 @@ Created on first change at `~/.pi/agent/zen-mode.json` (or under `$PI_CODING_AGE
   "enabled": true,
   "hideThinking": true,
   "hideTools": true,
+  "showWhileRunning": false,
   "locale": "zh",
   "toggleKey": "ctrl+alt+f",
   "revealKey": "ctrl+alt+r",
@@ -87,10 +89,11 @@ Created on first change at `~/.pi/agent/zen-mode.json` (or under `$PI_CODING_AGE
 | `enabled` | Master switch |
 | `hideThinking` | Hide thinking while running; collapse to a one-line `◈` when done; `false` streams the native thinking UI |
 | `hideTools` | Hide tool calls while running; collapse to a one-line `⚙` when done; `false` streams native tool rows |
+| `showWhileRunning` | When `true`, stream native thinking and tools while running; still collapse them on settle according to the two switches above |
 | `locale` | Language for placeholders, footer, and the run picker: `zh` or `en`. The `/zen` panel itself stays bilingual |
 | `toggleKey` / `revealKey` / `pickerKey` | The three shortcuts — any valid Pi keybinding string |
 
-While zen is on, thinking and tools are tracked (so you can flip a switch later). The two sub-toggles only choose **hidden vs visible**, and the footer counts. Text is never hidden — interim chatter and the final answer are the same `text` parts on the wire, so hiding them would flash a few characters then vanish. Turn a switch off and that category uses the native renderer; turn it back on and already-finished runs collapse those rows to placeholders (only the tracked components are redrawn). `ctrl+alt+r` reveals through the original renderer. `/reload` after changes.
+While zen is on, thinking and tools are tracked (so you can flip a switch later). With `live process` on, the native UI streams the current turn's process, then agent idle collapses it to placeholders; with it off, hiding remains immediate. The thinking / tools sub-toggles decide whether final rows collapse and what the footer counts. Text is never hidden — interim chatter and the final answer are the same `text` parts on the wire, so hiding them would flash a few characters then vanish. Turn a switch off and that category uses the native renderer; turn it back on and already-finished runs collapse those rows to placeholders (only the tracked components are redrawn). `ctrl+alt+r` reveals through the original renderer. `/reload` after changes.
 
 ## Compatibility
 

@@ -21,8 +21,8 @@
 
 ## 特性
 
-- **按开关隐藏** — 思考 / 工具各自决定要不要实时显示；文字始终流式出现
-- **可见项走原生 UI** — 不隐藏的思考块保持 compact-thinking / 原生样式
+- **按开关隐藏** — thinking / tools 各自决定要不要实时显示；可选“运行时显示过程”，本轮结束后仍统一折叠
+- **可见项走原生 UI** — 不隐藏或 live mode 下的思考块保持 compact-thinking / 原生样式
 - **结束见真章** — 最终答案全文显示,被藏的内容折成一行占位
 - **随时可回看** — `ctrl+alt+r` / `ctrl+alt+s` 用原生渲染展开最近一轮过程或选择更早轮次
 - **零侵入** — 与 [pi-compact-thinking](https://github.com/nostalfinals/pi-compact-thinking) 等渲染扩展共存;关闭时完全不碰它们的渲染
@@ -47,10 +47,11 @@ pi install npm:pi-zen-mode
   <img src="img/PixPin_2026-09-04_16-56-48.png" alt="zen settings panel" width="660" />
 </p>
 
-除了 **focus mode 开关** 之外，还有两个开关：
+除了 **focus mode 开关** 之外，还有三个过程显示开关：
 
 * **thinking 开关**，控制 focus mode 生命周期下的每轮对话是否隐藏 thinking 块
 * **tools 开关**，控制 focus mode 生命周期下的每轮对话是否隐藏 tools 块
+* **live process 开关**，运行时原生显示 thinking 和 tools；本轮结束后仍按 thinking / tools 开关统一折叠
 
 ## 快捷键
 
@@ -75,6 +76,7 @@ pi install npm:pi-zen-mode
   "enabled": true,
   "hideThinking": true,
   "hideTools": true,
+  "showWhileRunning": false,
   "locale": "zh",
   "toggleKey": "ctrl+alt+f",
   "revealKey": "ctrl+alt+r",
@@ -87,10 +89,11 @@ pi install npm:pi-zen-mode
 | `enabled` | 总开关 |
 | `hideThinking` | 运行时隐藏思考块;结束后折成一行 `◈`;`false` 则实时显示原生思考 UI |
 | `hideTools` | 运行时隐藏工具调用;结束后折成一行 `⚙`;`false` 则实时原生渲染 |
+| `showWhileRunning` | `true` 时，运行中原生显示 thinking 和 tools；本轮结束后仍按以上两个开关折叠 |
 | `locale` | 占位/底栏/选择框语言，`zh` 或 `en`。`/zen` 面板本身不切换，始终中英对照 |
 | `toggleKey` / `revealKey` / `pickerKey` | 三个快捷键,任意合法的 pi 键位字符串 |
 
-zen 开着时思考和工具都会被管起来（方便事后改开关）。两个子开关只决定**藏还是显示**，以及底栏统计。文字不藏——中间那句「我先看看」和最终答案在协议里分不开，硬藏只会闪几个字再消失。关掉某一档走原生 UI；再打开会把已结束轮次里对应的行收成占位（只重绘被管到的那些组件）。`ctrl+alt+r` 展开走原生渲染。改完 `/reload` 生效。
+zen 开着时思考和工具都会被管起来（方便事后改开关）。`live process` 开启时，本轮执行过程先走原生 UI，agent idle 后再统一收成占位；关闭时维持即时隐藏。thinking / tools 两个子开关决定结束后是否折叠以及底栏统计。文字不藏——中间那句「我先看看」和最终答案在协议里分不开，硬藏只会闪几个字再消失。关掉某一档走原生 UI；再打开会把已结束轮次里对应的行收成占位（只重绘被管到的那些组件）。`ctrl+alt+r` 展开走原生渲染。改完 `/reload` 生效。
 
 ## 兼容性
 

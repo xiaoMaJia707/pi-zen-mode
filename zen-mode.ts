@@ -65,6 +65,7 @@ interface ZenConfig {
   enabled: boolean;
   hideThinking: boolean;
   hideTools: boolean;
+  showWhileRunning: boolean;
   locale: Locale;
   toggleKey?: string;
   revealKey?: string;
@@ -75,6 +76,7 @@ const DEFAULT_CONFIG: ZenConfig = {
   enabled: false,
   hideThinking: true,
   hideTools: true,
+  showWhileRunning: false,
   locale: "zh",
 };
 
@@ -261,6 +263,7 @@ export default function zenMode(pi: ExtensionAPI) {
           enabled: raw.enabled ?? DEFAULT_CONFIG.enabled,
           hideThinking: raw.hideThinking ?? DEFAULT_CONFIG.hideThinking,
           hideTools: raw.hideTools ?? DEFAULT_CONFIG.hideTools,
+          showWhileRunning: raw.showWhileRunning ?? DEFAULT_CONFIG.showWhileRunning,
           locale: normalizeLocale(raw.locale),
           toggleKey: raw.toggleKey,
           revealKey: raw.revealKey,
@@ -573,15 +576,14 @@ export default function zenMode(pi: ExtensionAPI) {
         return;
       }
 
-      // Zen + running: hide only the categories whose switches are on.
-      // Unhidden thinking/text stream through the original renderer so the
-      // native (or compact-thinking) UI stays intact. A message is collected
-      // once (by timestamp) even if pi streams many updates.
+      // Zen + running: collect every message, then either stream native
+      // thinking or suppress it until final collapse. A message is collected
+      // once (by timestamp) even if Pi streams many updates.
       const ts = message.timestamp;
       const id =
         typeof ts === "number" || typeof ts === "string" ? `m:${ts}` : undefined;
       capture("assistant", this, id);
-      const includeThinking = !config.hideThinking;
+      const includeThinking = config.showWhileRunning || !config.hideThinking;
       originalAssistantUpdate.call(
         this,
         filterMessage(message, includeThinking),
@@ -607,7 +609,9 @@ export default function zenMode(pi: ExtensionAPI) {
         owned = collector;
       }
 
-      if (!config.hideTools) {
+      // Live mode shows the native renderer while the run is active; after
+      // settle, the owned component falls through to the existing placeholder.
+      if ((config.showWhileRunning && busy) || !config.hideTools) {
         return originalToolRender.call(this, width);
       }
 
@@ -812,6 +816,12 @@ export default function zenMode(pi: ExtensionAPI) {
         values: ["on", "off"],
       },
       {
+        id: "showWhileRunning",
+        label: "▷ 运行时显示过程 · live process",
+        currentValue: config.showWhileRunning ? "on" : "off",
+        values: ["on", "off"],
+      },
+      {
         id: "locale",
         label: "Language",
         currentValue: config.locale === "en" ? "English" : "CN",
@@ -832,6 +842,9 @@ export default function zenMode(pi: ExtensionAPI) {
       config.hideTools = on;
       saveConfig();
       refreshCollapsedRuns();
+    } else if (id === "showWhileRunning") {
+      config.showWhileRunning = on;
+      saveConfig();
     } else if (id === "locale") {
       const next = normalizeLocale(value);
       if (config.locale === next) return;
