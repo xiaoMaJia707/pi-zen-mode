@@ -48,6 +48,7 @@ import {
   Spacer,
   Text,
   truncateToWidth,
+  type Component,
   type SettingItem,
   type TUI,
 } from "@earendil-works/pi-tui";
@@ -351,11 +352,31 @@ export default function zenMode(pi: ExtensionAPI) {
     return { ...message, content: content as AssistantMessage["content"] };
   }
 
-  function prependChild(container: Container, child: Spacer | Text) {
+  function prependChild(container: Container, child: Component) {
     const kids = container.children.slice();
     container.clear();
     container.addChild(child);
     for (const k of kids) container.addChild(k);
+  }
+
+  /** Full-width horizontal rule marking where the final output begins. */
+  function makeFinalRule(pad: number): Component {
+    return {
+      render(width: number) {
+        const w = Math.max(1, width - pad * 2);
+        return [" ".repeat(pad) + dim("\u2500".repeat(w))];
+      },
+      invalidate() {},
+    };
+  }
+
+  /** Prepend the final-output rule to the collector's final answer. */
+  function addFinalRule(col: RunCollector) {
+    if (col.finalTextIndex <= 0) return;
+    const comp = col.comps[col.finalTextIndex].component as AssistantMessageComponent;
+    const self = assistantInternals(comp);
+    prependChild(self.contentContainer, new Spacer(1));
+    prependChild(self.contentContainer, makeFinalRule(self.outputPad));
   }
 
   /* ---------------- presentation ---------------- */
@@ -490,6 +511,7 @@ export default function zenMode(pi: ExtensionAPI) {
       }
     });
 
+    addFinalRule(col);
     addCollapseFooter(col);
   }
 
